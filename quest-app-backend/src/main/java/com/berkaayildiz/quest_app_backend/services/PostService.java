@@ -13,6 +13,7 @@ import com.berkaayildiz.quest_app_backend.entities.User;
 import com.berkaayildiz.quest_app_backend.repositories.PostRepository;
 import com.berkaayildiz.quest_app_backend.requests.PostCreateRequest;
 import com.berkaayildiz.quest_app_backend.requests.PostUpdateRequest;
+import com.berkaayildiz.quest_app_backend.responses.PostResponse;
 
 
 /**
@@ -36,11 +37,11 @@ public class PostService {
      * @param postId the ID of the post to retrieve
      * @return a ResponseEntity containing the post if found, or a NOT_FOUND status if not found
      */
-    public ResponseEntity<Post> getPost(Long postId) {
+    public ResponseEntity<PostResponse> getPost(Long postId) {
         Post post = postRepository.findById(postId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
     
-        return ResponseEntity.ok(post);
+        return ResponseEntity.ok(new PostResponse(post));
     }
 
     /**
@@ -48,11 +49,15 @@ public class PostService {
      * @param userId the ID of the user to retrieve posts for
      * @return a list of all posts
      */
-    public List<Post> getAllPosts(Optional<Long> userId) {
+    public List<PostResponse> getAllPosts(Optional<Long> userId) {
+        List<Post> posts;
+
         if (userId.isPresent())
-            return postRepository.findByUserId(userId.get());
+            posts = postRepository.findByUserId(userId.get());
         else
-            return postRepository.findAll();
+            posts = postRepository.findAll();
+        
+        return posts.stream().map(PostResponse::new).toList();
     }
 
     /**

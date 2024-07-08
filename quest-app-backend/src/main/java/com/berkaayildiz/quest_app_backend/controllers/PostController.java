@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.berkaayildiz.quest_app_backend.entities.Post;
 import com.berkaayildiz.quest_app_backend.requests.PostCreateRequest;
 import com.berkaayildiz.quest_app_backend.requests.PostUpdateRequest;
+import com.berkaayildiz.quest_app_backend.responses.PostResponse;
 import com.berkaayildiz.quest_app_backend.services.PostService;
 
 
@@ -30,12 +31,12 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
-    public  ResponseEntity<Post> getPost(@RequestParam Long postId) {
+    public  ResponseEntity<PostResponse> getPost(@RequestParam Long postId) {
         return postService.getPost(postId);
     }
 
     @GetMapping
-    public List<Post> getAllPosts(@RequestParam Optional<Long> userId) {
+    public List<PostResponse> getAllPosts(@RequestParam Optional<Long> userId) {
         return postService.getAllPosts(userId);
     }
 
