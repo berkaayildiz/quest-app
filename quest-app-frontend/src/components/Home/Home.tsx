@@ -3,25 +3,24 @@ import { useState, useEffect } from "react";
 import Post from "../Post/Post";
 import PostForm from "../Post/PostForm";
 
-import "./Home.css";
+import { PostType } from "@/types/PostType";
 
 
-type PostType = {
-  id: number;
-  userId: number;
-  username: string;
-  title: string;
-  text: string;
-};
-
-function Home() {
-  const [error, setError] = useState<Error | null>(null);
+function Home()
+{
+  // Holds the state of whether the fetch has completed
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
+  // Holds the posts fetched from the server
   const [posts, setPosts] = useState<PostType[]>([]);
 
+  // TODO: After implementing authentication change these values with the logged in user's information
+  let userId = 1;
+  let username = "berkaayildiz";
+
+  // Fetches posts from the server
   const refreshPosts = () => { 
     fetch("/posts")
-      .then((res) => res.json())
+      .then((response) => response.json())
       .then(
         (result: PostType[]) => {
           setIsLoaded(true);
@@ -29,27 +28,35 @@ function Home() {
         },
         (error: Error) => {
           setIsLoaded(true);
-          setError(error);
+          console.error('Error:', error);
         }
       );
   };
-   
-  useEffect(() => {
-    refreshPosts();
-  }, [posts]);
 
-  if (error) {
-    console.error(error);
-    return <div>Error: {error.message}</div>;
-  } else if (!isLoaded) {
-    return <div>Loading...</div>;
-  } else {
+  // Fetch posts when the component mounts
+  useEffect(() => {refreshPosts();}, []);
+
+  // Displays loading message if the fetch is not complete
+  if (!isLoaded) { return <div>Loading...</div>; }
+  // Displays the home page if the fetch is complete
+  else {
     return (
-      <div className="homeContainer">
-        <PostForm refreshPosts={refreshPosts}></PostForm>
-        <div className="postsContainer">
+      <div className="flex flex-col items-center">
+        <PostForm
+          userId={userId}
+          username={username}
+          refreshPosts={refreshPosts}
+        />
+        <div className="flex flex-wrap justify-center">
           {posts.map((post) => (
-            <Post key={post.id} userId={post.userId} username={post.username} title={post.title} text={post.text} />
+            <Post
+              key={post.id}
+              id={post.id}
+              userId={post.userId}
+              username={post.username}
+              title={post.title}
+              text={post.text}
+            />
           ))}
         </div>
       </div>

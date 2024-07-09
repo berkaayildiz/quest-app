@@ -1,36 +1,51 @@
-import React from 'react';
-
+import React, { FC, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Collapsible, CollapsibleTrigger, CollapsibleContent} from "@/components/ui/collapsible";
-
 import LikeButton from '../ui/LikeButton';
 
+import Comment from '../Comment/Comment';
 
-type PostProps = {
-  userId: number;
-  username: string;
-  title: string;
-  text: string;
-};
+import { CommentType } from '@/types/CommentType';
+import { PostProps } from '@/types/props/PostProps';
+import CommentForm from '../Comment/CommentForm';
 
-const Post: React.FC<PostProps> = ({ userId, username, title, text }) => {
 
-  // Mock post data, update with real data later
+const Post: FC<PostProps> = ({ id, userId, username, title, text }) =>
+{
+  // Holds the comments fetched from the server
+  const [comments, setComments] = useState<CommentType[]>([]);
+
+  // Fetches comments from the server by postId
+  const refreshComments = (postId: number) => {
+    fetch("/comments?postId=" + postId)
+      .then(response => response.json())
+      .then(
+        (result: CommentType[]) => {
+          setComments(result);
+        },
+        (error: Error) => {
+          console.error('Error:', error);
+        }
+      );
+  }
+
+  // Fetch comments when the component mounts
+  useEffect(() => { refreshComments(id); }, []);
+
+  // TODO: After implementing like functionality change this value with the number of likes
   let numberOfLikes = 13;
-  let numberOfComments = 1;
 
+  // Displays a post with collapsible comments and add comment form
   return (
     <Card className="w-full max-w-4xl rounded-lg m-6">
-
+      {/* Displays the user's avatar, username, title, and text */}
       <CardHeader className="flex items-center gap-4 p-4">
-        <Link to={'/users/' + userId}>
+        <Link to={`/users/${userId}`}>
           <Avatar>
-            <AvatarImage src="/placeholder-user.jpg" />
             <AvatarFallback>{username.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
         </Link>
@@ -39,59 +54,47 @@ const Post: React.FC<PostProps> = ({ userId, username, title, text }) => {
           <div className="text-sm text-muted-foreground">{username}</div>
         </div>
       </CardHeader>
-
       <CardContent className="p-4">
         <p className="text-muted-foreground">{text}</p>
       </CardContent>
-
-
+      {/* Displays the collapsible part of the post */}
       <Collapsible>
-        <div>
-          <div className='flex items-center justify-between p-4'>
-            <div className='flex items-center gap-2'>
-              <LikeButton></LikeButton>
-              <div className="text-sm text-muted-foreground">{numberOfLikes} likes</div>
-            </div>
-
-            <CollapsibleTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <MessageCircleIcon className="w-5 h-5"/> <span>{numberOfComments} comments</span>
-              </Button>
-            </CollapsibleTrigger>
+        {/* Displays the number of likes and comments */}
+        <div className='flex items-center justify-between p-4'>
+          <div className='flex items-center gap-2'>
+            <LikeButton></LikeButton>
+            <div className="text-sm text-muted-foreground">{numberOfLikes} likes</div>
           </div>
-          <CollapsibleContent>
-            <div className="border-t px-4 py-4 space-y-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Avatar>
-                  <AvatarImage src="/placeholder-user.jpg" />
-                  <AvatarFallback>JP</AvatarFallback>
-                </Avatar>
-                <div className='ml-2'>
-                  <div className="font-medium flex">Jared Palmer</div>
-                  <div>Looks great, can't wait to try it out!</div>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2">
-                <Avatar>
-                  <AvatarImage src="/placeholder-user.jpg" />
-                  <AvatarFallback>{userId}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <Input placeholder="Add a comment..." className="bg-muted" />
-                </div>
-                <Button variant="ghost" size="icon">
-                  <SendIcon className="w-4 h-4" />
-                  <span className="sr-only">Send</span>
-                </Button>
-              </div>
-            </div>
-          </CollapsibleContent>
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" className="flex items-center gap-2 text-sm text-muted-foreground">
+              <MessageCircleIcon className="w-5 h-5"/> <span>{comments.length} comments</span>
+            </Button>
+          </CollapsibleTrigger>
         </div>
+        {/* Displays the comments and add comment form */}
+        <CollapsibleContent>
+          <div className="border-t px-4 py-4 space-y-4 text-sm text-muted-foreground">
+            {comments.map((comment) => (
+              <Comment
+                key={comment.id}
+                userId={comment.userId}
+                username={comment.username} 
+                text={comment.text}
+                createDate={comment.createDate}
+                />
+            ))}
+            <CommentForm
+              userId={userId}
+              postId={id}
+              username={username}
+              refreshComments={refreshComments}
+            />
+          </div>
+          </CollapsibleContent>
       </Collapsible>
     </Card>
-  )
-}
+  );
+};
 
 function MessageCircleIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -108,27 +111,6 @@ function MessageCircleIcon(props: React.SVGProps<SVGSVGElement>) {
       strokeLinejoin="round"
     >
       <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
-    </svg>
-  )
-}
-
-
-function SendIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m22 2-7 20-4-9-9-4Z" />
-      <path d="M22 2 11 13" />
     </svg>
   )
 }
