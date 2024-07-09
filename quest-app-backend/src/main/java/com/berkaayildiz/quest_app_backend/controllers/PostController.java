@@ -31,7 +31,7 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
-    public  ResponseEntity<PostResponse> getPost(@RequestParam Long postId) {
+    public  ResponseEntity<Post> getPost(@RequestParam Long postId) {
         return postService.getPost(postId);
     }
 

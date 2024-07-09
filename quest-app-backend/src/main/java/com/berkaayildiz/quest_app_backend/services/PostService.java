@@ -37,12 +37,24 @@ public class PostService {
      * @param postId the ID of the post to retrieve
      * @return a ResponseEntity containing the post if found, or a NOT_FOUND status if not found
      */
-    public ResponseEntity<PostResponse> getPost(Long postId) {
+    public ResponseEntity<PostResponse> getPostResponse(Long postId) {
         Post post = postRepository.findById(postId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
     
         return ResponseEntity.ok(new PostResponse(post));
     }
+
+    /**
+     * Retrieves a post by its ID.
+     * @param postId the ID of the post to retrieve
+     * @return 
+     */
+    public ResponseEntity<Post> getPost(Long postId) {
+		return postRepository.findById(postId)
+        .map(ResponseEntity::ok)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+	}
+
 
     /**
      * Retrieves all posts. If a user ID is provided, retrieves all posts for that user.

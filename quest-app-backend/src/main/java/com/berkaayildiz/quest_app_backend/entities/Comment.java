@@ -1,5 +1,7 @@
 package com.berkaayildiz.quest_app_backend.entities;
 
+import java.util.Date;
+
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -13,6 +15,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 
 /**
@@ -27,13 +31,13 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name = "post_id", nullable=false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private Post post;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable=false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
@@ -42,13 +46,18 @@ public class Comment {
     @Column(columnDefinition = "TEXT")
     private String text;
 
+    @Temporal(TemporalType.TIMESTAMP)
+	Date createDate;
+
 
     public Comment() {}
 
-    public Comment(Post post, User user, String text) {
+    public Comment(Long id, Post post, User user, String text) {
+        this.id = id;
         this.post = post;
         this.user = user;
         this.text = text;
+        this.createDate = new Date();
     }
 
 
@@ -56,9 +65,11 @@ public class Comment {
     public Post getPost() { return post; }
     public User getUser() { return user; }
     public String getText() { return text; }
+    public Date getCreateDate() { return createDate; }
 
     public void setId(Long id) { this.id = id; }
     public void setPost(Post post) { this.post = post; }
     public void setUser(User user) { this.user = user; }
     public void setText(String text) { this.text = text; }
+    public void setCreateDate(Date createDate) { this.createDate = createDate; }
 }
