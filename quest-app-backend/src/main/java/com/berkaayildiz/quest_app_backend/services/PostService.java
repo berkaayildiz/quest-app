@@ -3,6 +3,8 @@ package com.berkaayildiz.quest_app_backend.services;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import com.berkaayildiz.quest_app_backend.entities.User;
 import com.berkaayildiz.quest_app_backend.repositories.PostRepository;
 import com.berkaayildiz.quest_app_backend.requests.PostCreateRequest;
 import com.berkaayildiz.quest_app_backend.requests.PostUpdateRequest;
+import com.berkaayildiz.quest_app_backend.responses.LikeResponse;
 import com.berkaayildiz.quest_app_backend.responses.PostResponse;
 
 
@@ -26,35 +29,38 @@ public class PostService {
     private final PostRepository postRepository;
 
     private final UserService userService;
+    private LikeService likeService;
 
     public PostService(PostRepository postRepository, UserService userService) {
         this.postRepository = postRepository;
         this.userService = userService;
     }
 
-    /**
-     * Retrieves a post by its ID.
-     * @param postId the ID of the post to retrieve
-     * @return a ResponseEntity containing the post if found, or a NOT_FOUND status if not found
-     */
-    public ResponseEntity<PostResponse> getPostResponse(Long postId) {
-        Post post = postRepository.findById(postId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
-    
-        return ResponseEntity.ok(new PostResponse(post));
-    }
+    @Autowired
+    @Lazy
+	public void setLikeService(LikeService likeService) {
+		this.likeService = likeService;
+	}
 
-    /**
-     * Retrieves a post by its ID.
-     * @param postId the ID of the post to retrieve
-     * @return 
-     */
+
     public ResponseEntity<Post> getPost(Long postId) {
 		return postRepository.findById(postId)
         .map(ResponseEntity::ok)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
 	}
 
+    /**
+     * Retrieves a post by its ID.
+     * @param postId the ID of the post to retrieve
+     * @return a ResponseEntity containing the post response
+     */
+    public ResponseEntity<PostResponse> getOnePost(Long postId) {
+        Post post = postRepository.findById(postId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+
+        List<LikeResponse> likes = likeService.getLikes(Optional.empty(), Optional.of(post.getId())).getBody();
+        return ResponseEntity.ok(new PostResponse(post, likes));
+    }
 
     /**
      * Retrieves all posts. If a user ID is provided, retrieves all posts for that user.
@@ -69,7 +75,12 @@ public class PostService {
         else
             posts = postRepository.findAll();
         
-        return posts.stream().map(PostResponse::new).toList();
+        return posts.stream().map(
+            (post) -> {
+                List<LikeResponse> likes = likeService.getLikes(Optional.empty(), Optional.of(post.getId())).getBody();
+                return new PostResponse(post, likes);
+            }
+        ).toList();
     }
 
     /**
