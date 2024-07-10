@@ -56,6 +56,7 @@ function Home()
               username={post.username}
               title={post.title}
               text={post.text}
+              likes={post.likes}
             />
           ))}
         </div>

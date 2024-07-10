@@ -1,13 +1,15 @@
-import { useState } from "react"
+import { FC } from "react";
+
+import { LikeButtonProps } from "@/types/props/LikeButtonProps";
 
 
-export default function LikeButton() {
-  const [isLiked, setIsLiked] = useState(false)
+const LikeButton: FC<LikeButtonProps> = ({ onClick, isLiked }) =>
+{
   return (
     <button
       className={`relative inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent transition-transform hover:scale-110`}
       aria-label="Like"
-      onClick={() => setIsLiked(!isLiked)}
+      onClick={onClick}
     >
       <span className="absolute inset-0 flex items-center justify-center text-2xl">
         <HeartIcon
@@ -38,3 +40,5 @@ function HeartIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
+
+export default LikeButton;

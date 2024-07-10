@@ -12,12 +12,20 @@ import Comment from '../Comment/Comment';
 import { CommentType } from '@/types/CommentType';
 import { PostProps } from '@/types/props/PostProps';
 import CommentForm from '../Comment/CommentForm';
+import { LikeType } from '@/types/LikeType';
 
 
-const Post: FC<PostProps> = ({ id, userId, username, title, text }) =>
+const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
 {
   // Holds the comments fetched from the server
   const [comments, setComments] = useState<CommentType[]>([]);
+  // Holds the state of whether the post is liked by the user
+  const [isLiked, setIsLiked] = useState<boolean>(false);
+  // Holds the state of the current number of likes on the post
+  const [likeCount, setLikeCount] = useState<number>(likes.length);
+
+  // TODO: After implementing authentication change these values with the logged in user's information
+  let currentUserId = 1;
 
   // Fetches comments from the server by postId
   const refreshComments = (postId: number) => {
@@ -33,11 +41,66 @@ const Post: FC<PostProps> = ({ id, userId, username, title, text }) =>
       );
   }
 
-  // Fetch comments when the component mounts
-  useEffect(() => { refreshComments(id); }, []);
+  // Fetches likes from the server by postId
+  const refreshLikes = async (postId: number) => {
+    try {
+      const response = await fetch("/likes?postId=" + postId);
+      const result: LikeType[] = await response.json();
+      likes = result;
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
 
-  // TODO: After implementing like functionality change this value with the number of likes
-  let numberOfLikes = 13;
+  // Save like to database
+  const saveLike = async () => {
+    try {
+      const response = await fetch('/likes', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: userId,
+            postId: id,
+          }),
+      });
+      await response.json();
+    } catch (error) { console.error('Error:', error); }
+  };
+
+  // Delete like from database
+  const deleteLike = async (likeId: number) => {
+    try {
+      await fetch('/likes/' + likeId, {
+        method: 'DELETE',
+      });
+    } catch (error) { console.error('Error:', error); }
+  };
+
+  // Handles the like button click event
+  const onLikeClicked = async () => {
+    // Calculate the next like status
+    const nextLikeStatus = !isLiked;
+    // Change the like status
+    setIsLiked(nextLikeStatus);
+    // Update the number of likes and database
+    if (nextLikeStatus) {
+      setLikeCount(likeCount + 1);
+      saveLike();
+    }
+    else {
+      setLikeCount(likeCount - 1);
+      await refreshLikes(id); // Need to refresh likes to get the likeId since the likes array is not updated
+      deleteLike(likes.find((like) => like.userId === currentUserId)!.id);
+    }
+  }
+
+  // Fetch comments and like status when the component mounts
+  useEffect(() => {
+    refreshComments(id); 
+    likes.find((like) => like.userId === currentUserId) ? setIsLiked(true) : setIsLiked(false);
+  }, []);
 
   // Displays a post with collapsible comments and add comment form
   return (
@@ -62,8 +125,8 @@ const Post: FC<PostProps> = ({ id, userId, username, title, text }) =>
         {/* Displays the number of likes and comments */}
         <div className='flex items-center justify-between p-4'>
           <div className='flex items-center gap-2'>
-            <LikeButton></LikeButton>
-            <div className="text-sm text-muted-foreground">{numberOfLikes} likes</div>
+            <LikeButton onClick={onLikeClicked} isLiked={isLiked}></LikeButton>
+            <div className="text-sm text-muted-foreground">{likeCount} likes</div>
           </div>
           <CollapsibleTrigger asChild>
             <Button variant="ghost" className="flex items-center gap-2 text-sm text-muted-foreground">
