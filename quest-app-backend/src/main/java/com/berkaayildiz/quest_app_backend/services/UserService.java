@@ -81,4 +81,13 @@ public class UserService {
         userRepository.delete(user);
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     * Retrieves a user by their username.
+     * @param username the username of the user to retrieve
+     * @return the user if found, or null if not found
+     */
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
 }
