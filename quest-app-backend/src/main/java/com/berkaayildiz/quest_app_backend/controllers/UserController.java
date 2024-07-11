@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.berkaayildiz.quest_app_backend.entities.User;
+import com.berkaayildiz.quest_app_backend.responses.UserResponse;
 import com.berkaayildiz.quest_app_backend.services.UserService;
 
 
@@ -28,12 +29,12 @@ public class UserController {
     }
     
     @GetMapping("/{userId}")
-    public ResponseEntity<User> getUser(@PathVariable Long userId) {
+    public ResponseEntity<UserResponse> getUser(@PathVariable Long userId) {
         return userService.getUser(userId);
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<UserResponse> getAllUsers() {
         return userService.getAllUsers();
     }
 

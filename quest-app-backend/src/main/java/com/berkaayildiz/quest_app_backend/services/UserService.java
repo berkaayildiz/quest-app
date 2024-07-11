@@ -1,6 +1,7 @@
 package com.berkaayildiz.quest_app_backend.services;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.berkaayildiz.quest_app_backend.entities.User;
 import com.berkaayildiz.quest_app_backend.repositories.UserRepository;
+import com.berkaayildiz.quest_app_backend.responses.UserResponse;
 
 
 /**
@@ -29,7 +31,15 @@ public class UserService {
      * @param userId the ID of the user to retrieve
      * @return a ResponseEntity containing the user if found, or a NOT_FOUND status if not found
      */
-    public ResponseEntity<User> getUser(Long userId) {
+    public ResponseEntity<UserResponse> getUser(Long userId) {
+        User user = userRepository.findById(userId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    
+        return ResponseEntity.ok(new UserResponse(user));
+    }
+
+    // Needed for some internal operations
+    protected ResponseEntity<User> getDirectUser(Long userId) {
         User user = userRepository.findById(userId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     
@@ -40,8 +50,8 @@ public class UserService {
      * Retrieves all users.
      * @return a list of all users
      */
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll().stream().map(user -> new UserResponse(user)).collect(Collectors.toList());
     }
 
     /**

@@ -75,7 +75,7 @@ public class CommentService {
      * @return the created comment
      */
     public Comment createComment(CommentCreateRequest commentCreateRequest) {
-        User user = userService.getUser(commentCreateRequest.getUserId()).getBody();
+        User user = userService.getDirectUser(commentCreateRequest.getUserId()).getBody();
         Post post = postService.getPost(commentCreateRequest.getPostId()).getBody();
         Comment newComment = new Comment(commentCreateRequest.getId(), post, user, commentCreateRequest.getText());
         return commentRepository.save(newComment);

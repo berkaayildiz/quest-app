@@ -71,7 +71,7 @@ public class LikeService
      * @return the created like
      */
     public Like createLike(LikeCreateRequest request) {
-        User user = userService.getUser(request.getUserId()).getBody();
+        User user = userService.getDirectUser(request.getUserId()).getBody();
         Post post = postService.getPost(request.getPostId()).getBody();
         Like like = new Like(request.getId() ,post, user);
 

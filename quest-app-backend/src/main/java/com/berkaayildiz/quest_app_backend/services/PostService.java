@@ -89,7 +89,7 @@ public class PostService {
      * @return the created post
      */
     public Post createPost(PostCreateRequest postCreateRequest) {
-        User user = userService.getUser(postCreateRequest.getUserId()).getBody();
+        User user = userService.getDirectUser(postCreateRequest.getUserId()).getBody();
 
         Post newPost = new Post();
         newPost.setId(postCreateRequest.getId());

@@ -1,5 +1,7 @@
 package com.berkaayildiz.quest_app_backend.configs;
 
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,8 +30,8 @@ public class SecurityConfig {
 	
 	private final JwtAuthenticationEntryPoint handler;
 
-    @Value("${allowed.origin}")
-    private String allowedOrigin;
+    @Value("${allowed.origins}")
+    private String allowedOrigins;
 	
     public SecurityConfig(JwtAuthenticationEntryPoint handler) {
         this.handler = handler;
@@ -55,7 +57,7 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOriginPattern(allowedOrigin);
+        Arrays.stream(allowedOrigins.split(",")).forEach(origin -> config.addAllowedOrigin(origin.trim()));
         config.addAllowedHeader("*");
         config.addAllowedMethod("OPTIONS");
         config.addAllowedMethod("HEAD");
@@ -83,6 +85,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/comments")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/likes")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users/**")
                         .permitAll()
                         .requestMatchers("/auth/**")
                         .permitAll()
