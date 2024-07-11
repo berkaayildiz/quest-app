@@ -28,6 +28,17 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      '/auth': {
+      target: 'http://localhost:8080',
+      changeOrigin: true,
+      secure: false,
+      bypass: function(req, res, options) {
+          // Only proxy POST requests, bypass others
+          if (req.method !== 'POST') {
+            return req.url;
+          }
+        }
+      },
     },
   },
   resolve: {

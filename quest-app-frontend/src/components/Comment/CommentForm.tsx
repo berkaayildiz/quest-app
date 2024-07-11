@@ -27,6 +27,7 @@ const CommentForm: FC<CommentFormProps> = ({ userId, postId, username, refreshCo
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Authorization': localStorage.getItem('tokenKey')!
           },
           body: JSON.stringify({
             userId: userId,

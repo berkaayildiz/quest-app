@@ -39,6 +39,7 @@ const PostForm: FC<PostFormProps> = ({ userId, username, refreshPosts }) =>
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Authorization': localStorage.getItem('tokenKey')!
           },
           body: JSON.stringify({
             userId: userId,
@@ -52,7 +53,7 @@ const PostForm: FC<PostFormProps> = ({ userId, username, refreshPosts }) =>
 
   // Displays a form with an avatar, input fields, and submit button to add a post
   return (
-    <Card className="w-full max-w-4xl rounded-lg m-6">
+    <Card className="w-full max-w-4xl rounded-lg m-2 mt-6">
       <CardHeader className="flex items-center gap-4 p-4">
         <Link to={`/users/${userId}`}>
           <Avatar>
@@ -78,9 +79,11 @@ const PostForm: FC<PostFormProps> = ({ userId, username, refreshPosts }) =>
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
-        <Button className={isAnimating ? 'animate-press' : ''} color="primary" onClick={handleSubmit}>
-          Save
-        </Button>
+        <div className="flex justify-center">
+          <Button className={isAnimating ? 'animate-press' : ''} color="primary" onClick={handleSubmit}>
+            Save
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

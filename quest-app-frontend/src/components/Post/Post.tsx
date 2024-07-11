@@ -23,9 +23,8 @@ const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
   const [isLiked, setIsLiked] = useState<boolean>(false);
   // Holds the state of the current number of likes on the post
   const [likeCount, setLikeCount] = useState<number>(likes.length);
-
-  // TODO: After implementing authentication change these values with the logged in user's information
-  let currentUserId = 1;
+  // Holds the current user's id
+  const [currentUserId] = useState<number | null>(localStorage.getItem("currentUserId") == null ? null : Number(localStorage.getItem("currentUserId")));
 
   // Fetches comments from the server by postId
   const refreshComments = (postId: number) => {
@@ -54,14 +53,16 @@ const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
 
   // Save like to database
   const saveLike = async () => {
+    console.log("KEY " + localStorage.getItem('tokenKey')!);
     try {
       const response = await fetch('/likes', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Authorization': localStorage.getItem('tokenKey')!
           },
           body: JSON.stringify({
-            userId: userId,
+            userId: +localStorage.getItem('currentUserId')!,
             postId: id,
           }),
       });
@@ -74,6 +75,10 @@ const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
     try {
       await fetch('/likes/' + likeId, {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem('tokenKey')!
+        },
       });
     } catch (error) { console.error('Error:', error); }
   };
@@ -104,7 +109,7 @@ const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
 
   // Displays a post with collapsible comments and add comment form
   return (
-    <Card className="w-full max-w-4xl rounded-lg m-6">
+    <Card className="w-full max-w-4xl rounded-lg m-2 mt-6">
       {/* Displays the user's avatar, username, title, and text */}
       <CardHeader className="flex items-center gap-4 p-4">
         <Link to={`/users/${userId}`}>
@@ -113,19 +118,19 @@ const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
           </Avatar>
         </Link>
         <div className="grid gap-1">
-          <CardTitle className="text-lg font-semibold">{title}</CardTitle>
-          <div className="text-sm text-muted-foreground">{username}</div>
+          <CardTitle className="text-lg font-semibold text-center">{title}</CardTitle>
+          <div className="text-sm text-muted-foreground text-center">{username}</div>
         </div>
       </CardHeader>
       <CardContent className="p-4">
-        <p className="text-muted-foreground">{text}</p>
+        <p className="text-muted-foreground text-center">{text}</p>
       </CardContent>
       {/* Displays the collapsible part of the post */}
       <Collapsible>
         {/* Displays the number of likes and comments */}
         <div className='flex items-center justify-between p-4'>
           <div className='flex items-center gap-2'>
-            <LikeButton onClick={onLikeClicked} isLiked={isLiked}></LikeButton>
+            <LikeButton disabled={currentUserId == null} onClick={onLikeClicked} isLiked={isLiked}></LikeButton>
             <div className="text-sm text-muted-foreground">{likeCount} likes</div>
           </div>
           <CollapsibleTrigger asChild>
@@ -146,12 +151,14 @@ const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
                 createDate={comment.createDate}
                 />
             ))}
-            <CommentForm
-              userId={userId}
-              postId={id}
-              username={username}
-              refreshComments={refreshComments}
-            />
+            {localStorage.getItem("currentUserId") != null && (
+              <CommentForm
+                userId={+localStorage.getItem("currentUserId")!}
+                postId={id}
+                username={localStorage.getItem("currentUsername")!}
+                refreshComments={refreshComments}
+              />
+            )}
           </div>
           </CollapsibleContent>
       </Collapsible>

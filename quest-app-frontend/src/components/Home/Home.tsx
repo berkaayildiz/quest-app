@@ -13,9 +13,6 @@ function Home()
   // Holds the posts fetched from the server
   const [posts, setPosts] = useState<PostType[]>([]);
 
-  // TODO: After implementing authentication change these values with the logged in user's information
-  let userId = 1;
-  let username = "berkaayildiz";
 
   // Fetches posts from the server
   const refreshPosts = () => { 
@@ -41,25 +38,25 @@ function Home()
   // Displays the home page if the fetch is complete
   else {
     return (
-      <div className="flex flex-col items-center">
-        <PostForm
-          userId={userId}
-          username={username}
-          refreshPosts={refreshPosts}
-        />
-        <div className="flex flex-wrap justify-center">
-          {posts.map((post) => (
-            <Post
-              key={post.id}
-              id={post.id}
-              userId={post.userId}
-              username={post.username}
-              title={post.title}
-              text={post.text}
-              likes={post.likes}
-            />
-          ))}
-        </div>
+      <div className="flex flex-col m-6 items-center justify-center">
+        {localStorage.getItem("currentUserId") != null && (
+          <PostForm
+            userId={+localStorage.getItem("currentUserId")!}
+            username={localStorage.getItem("currentUsername")!}
+            refreshPosts={refreshPosts}
+          />         
+        )}
+        {posts.map((post) => (
+          <Post
+            key={post.id}
+            id={post.id}
+            userId={post.userId}
+            username={post.username}
+            title={post.title}
+            text={post.text}
+            likes={post.likes}
+          />
+        ))}
       </div>
     );
   }

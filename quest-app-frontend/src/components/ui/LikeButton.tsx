@@ -3,13 +3,14 @@ import { FC } from "react";
 import { LikeButtonProps } from "@/types/props/LikeButtonProps";
 
 
-const LikeButton: FC<LikeButtonProps> = ({ onClick, isLiked }) =>
+const LikeButton: FC<LikeButtonProps> = ({ onClick, isLiked, disabled }) =>
 {
   return (
     <button
       className={`relative inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent transition-transform hover:scale-110`}
       aria-label="Like"
       onClick={onClick}
+      disabled={disabled}
     >
       <span className="absolute inset-0 flex items-center justify-center text-2xl">
         <HeartIcon
