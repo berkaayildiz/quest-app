@@ -1,4 +1,4 @@
-import React from 'react'; // Import React
+import { FC } from 'react'; // Import React
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import Navbar from './components/Navbar/Navbar';
@@ -7,7 +7,15 @@ import User from './components/User/User';
 import Auth from './components/Auth/Auth';
 import PageNotFound from './components/PageNotFound/PageNotFound';
 
-const App: React.FC = () => {
+import { AuthUser } from './types/AuthUser';
+
+const App: FC = () =>
+  {
+  // Holds the current user's credentials
+  const authUser: AuthUser = JSON.parse(localStorage.getItem('authUser') || '{}');
+
+
+  // Displays the app's navigation bar and routes
   return (
     <div>
       <BrowserRouter>
@@ -15,8 +23,8 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/users/:userId" element={<User />} />
-          <Route path="/auth/login" element={localStorage.getItem("currentUserId") != null ? <Navigate to="/" replace /> : <Auth mode="login"/>} />
-          <Route path="/auth/signup" element={localStorage.getItem("currentUserId") != null ? <Navigate to="/" replace /> : <Auth  mode="signup" />} />
+          <Route path="/auth/login" element={authUser.id != null ? <Navigate to="/" replace /> : <Auth mode="login"/>} />
+          <Route path="/auth/signup" element={authUser.id != null ? <Navigate to="/" replace /> : <Auth  mode="signup" />} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </BrowserRouter>

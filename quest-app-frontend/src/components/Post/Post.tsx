@@ -13,6 +13,7 @@ import { CommentType } from '@/types/CommentType';
 import { PostProps } from '@/types/props/PostProps';
 import CommentForm from '../Comment/CommentForm';
 import { LikeType } from '@/types/LikeType';
+import { AuthUser } from '@/types/AuthUser';
 
 
 const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
@@ -23,8 +24,9 @@ const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
   const [isLiked, setIsLiked] = useState<boolean>(false);
   // Holds the state of the current number of likes on the post
   const [likeCount, setLikeCount] = useState<number>(likes.length);
-  // Holds the current user's id
-  const [currentUserId] = useState<number | null>(localStorage.getItem("currentUserId") == null ? null : Number(localStorage.getItem("currentUserId")));
+  // Holds the current user's credentials
+  const authUser: AuthUser = JSON.parse(localStorage.getItem('authUser') || '{}');
+
 
   // Fetches comments from the server by postId
   const refreshComments = (postId: number) => {
@@ -51,18 +53,17 @@ const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
     }
   }
 
-  // Save like to database
+  // Save like to database with the current user's credentials
   const saveLike = async () => {
-    console.log("KEY " + localStorage.getItem('tokenKey')!);
     try {
       const response = await fetch('/likes', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': localStorage.getItem('tokenKey')!
+            'Authorization': authUser.token,
           },
           body: JSON.stringify({
-            userId: +localStorage.getItem('currentUserId')!,
+            userId: authUser.id,
             postId: id,
           }),
       });
@@ -70,14 +71,14 @@ const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
     } catch (error) { console.error('Error:', error); }
   };
 
-  // Delete like from database
+  // Delete like from database with the current user's credentials
   const deleteLike = async (likeId: number) => {
     try {
       await fetch('/likes/' + likeId, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': localStorage.getItem('tokenKey')!
+          'Authorization': authUser.token,
         },
       });
     } catch (error) { console.error('Error:', error); }
@@ -97,16 +98,17 @@ const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
     else {
       setLikeCount(likeCount - 1);
       await refreshLikes(id); // Need to refresh likes to get the likeId since the likes array is not updated
-      deleteLike(likes.find((like) => like.userId === currentUserId)!.id);
+      deleteLike(likes.find((like) => like.userId === authUser.id)!.id);
     }
   }
 
   // Fetch comments and like status when the component mounts
   useEffect(() => {
     refreshComments(id); 
-    likes.find((like) => like.userId === currentUserId) ? setIsLiked(true) : setIsLiked(false);
+    likes.find((like) => like.userId === authUser.id) ? setIsLiked(true) : setIsLiked(false);
   }, []);
 
+  
   // Displays a post with collapsible comments and add comment form
   return (
     <Card className="w-full max-w-4xl rounded-lg m-2 mt-6">
@@ -130,7 +132,7 @@ const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
         {/* Displays the number of likes and comments */}
         <div className='flex items-center justify-between p-4'>
           <div className='flex items-center gap-2'>
-            <LikeButton disabled={currentUserId == null} onClick={onLikeClicked} isLiked={isLiked}></LikeButton>
+            <LikeButton disabled={authUser.id == null} onClick={onLikeClicked} isLiked={isLiked}></LikeButton>
             <div className="text-sm text-muted-foreground">{likeCount} likes</div>
           </div>
           <CollapsibleTrigger asChild>
@@ -151,11 +153,9 @@ const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
                 createDate={comment.createDate}
                 />
             ))}
-            {localStorage.getItem("currentUserId") != null && (
-              <CommentForm
-                userId={+localStorage.getItem("currentUserId")!}
+            {authUser.id != null && (
+              <CommentForm 
                 postId={id}
-                username={localStorage.getItem("currentUsername")!}
                 refreshComments={refreshComments}
               />
             )}

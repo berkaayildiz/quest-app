@@ -5,52 +5,57 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 import { CommentFormProps } from "@/types/props/CommentFormProps";
+import { AuthUser } from "@/types/AuthUser";
 
 
-const CommentForm: FC<CommentFormProps> = ({ userId, postId, username, refreshComments }) =>
+const CommentForm: FC<CommentFormProps> = ({ postId, refreshComments }) =>
 {
-  // Holds the state of the comment text input field
-  const [commentText, setCommentText] = useState('');
+  // Holds the state of the comment input field
+  const [commentField, setCommentField] = useState('');
+  // Holds the current user's credentials
+  const authUser: AuthUser = JSON.parse(localStorage.getItem('authUser') || '{}');
+
 
   // Handles the submit button press
   const handleSubmit = () => {
     // Save post to database and refresh posts to display the new post
     saveComment().then(() => refreshComments(postId));
     // Clear input field
-    setCommentText('');
+    setCommentField('');
   };
 
-  // Save comment to database
+  // Save comment to database with the current user's credentials
   const saveComment = async () => {
     try {
       const response = await fetch('/comments', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': localStorage.getItem('tokenKey')!
+            'Authorization': authUser.token,
           },
           body: JSON.stringify({
-            userId: userId,
+            userId: authUser.id,
             postId: postId,
-            text: commentText,
+            text: commentField,
           }),
       });
       await response.json();
     } catch (error) { console.error('Error:', error); }
   };
 
+  
   // Displays a form with an avatar, input field, and submit button to add a comment
   return (
     <div className="flex items-start gap-2">
       <Avatar>
-        <AvatarFallback>{username.charAt(0).toUpperCase()}</AvatarFallback>
+        <AvatarFallback>{authUser.username.charAt(0).toUpperCase()}</AvatarFallback>
       </Avatar>
       <div className="flex-1">
         <Input className="bg-muted"
           placeholder="Add a comment..."
           maxLength={250}
-          value={commentText}
-          onChange={(e) => setCommentText(e.target.value)}
+          value={commentField}
+          onChange={(e) => setCommentField(e.target.value)}
         />
       </div>
       <Button variant="ghost" size="icon" onClick={handleSubmit}>

@@ -4,6 +4,7 @@ import Post from "../Post/Post";
 import PostForm from "../Post/PostForm";
 
 import { PostType } from "@/types/PostType";
+import { AuthUser } from "@/types/AuthUser";
 
 
 function Home()
@@ -12,6 +13,8 @@ function Home()
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   // Holds the posts fetched from the server
   const [posts, setPosts] = useState<PostType[]>([]);
+  // Holds the current user's credentials
+  const authUser: AuthUser = JSON.parse(localStorage.getItem('authUser') || '{}');
 
 
   // Fetches posts from the server
@@ -33,19 +36,20 @@ function Home()
   // Fetch posts when the component mounts
   useEffect(() => {refreshPosts();}, []);
 
+
   // Displays loading message if the fetch is not complete
   if (!isLoaded) { return <div>Loading...</div>; }
   // Displays the home page if the fetch is complete
   else {
     return (
       <div className="flex flex-col m-6 items-center justify-center">
-        {localStorage.getItem("currentUserId") != null && (
+        {/* Displays the  post form if the user is authenticated */}
+        { authUser.id != null && (
           <PostForm
-            userId={+localStorage.getItem("currentUserId")!}
-            username={localStorage.getItem("currentUsername")!}
             refreshPosts={refreshPosts}
           />         
         )}
+        {/* Displays all posts fetched from the server whether the user is authenticated or not */}
         {posts.map((post) => (
           <Post
             key={post.id}

@@ -10,15 +10,19 @@ import { PostFormProps } from '@/types/props/PostFormProps';
 import { FormFieldProps } from '@/types/props/FormFieldProps';
 
 import './PostForm.css';
+import { AuthUser } from '@/types/AuthUser';
 
 
-const PostForm: FC<PostFormProps> = ({ userId, username, refreshPosts }) =>
+const PostForm: FC<PostFormProps> = ({ refreshPosts }) =>
 {
   // Holds the state of the title and description input fields
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   // Holds the state of the animation of the button press
   const [isAnimating, setIsAnimating] = useState(false);
+  // Holds the current user's credentials
+  const authUser: AuthUser = JSON.parse(localStorage.getItem('authUser') || '{}');
+
 
   // Handles the submit button press
   const handleSubmit = () => {
@@ -39,10 +43,10 @@ const PostForm: FC<PostFormProps> = ({ userId, username, refreshPosts }) =>
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': localStorage.getItem('tokenKey')!
+            'Authorization': authUser.token,
           },
           body: JSON.stringify({
-            userId: userId,
+            userId: authUser.id,
             title: title,
             text: description,
           }),
@@ -51,16 +55,17 @@ const PostForm: FC<PostFormProps> = ({ userId, username, refreshPosts }) =>
     } catch (error) { console.error('Error:', error); }
   };
 
+  
   // Displays a form with an avatar, input fields, and submit button to add a post
   return (
     <Card className="w-full max-w-4xl rounded-lg m-2 mt-6">
       <CardHeader className="flex items-center gap-4 p-4">
-        <Link to={`/users/${userId}`}>
+        <Link to={`/users/${authUser.id}`}>
           <Avatar>
-            <AvatarFallback>{username.charAt(0).toUpperCase()}</AvatarFallback>
+            <AvatarFallback>{authUser.username.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
         </Link>
-        <div className="text-sm">{username}</div>
+        <div className="text-sm">{authUser.username}</div>
       </CardHeader>
       <CardContent className="p-4">
         <FormField
