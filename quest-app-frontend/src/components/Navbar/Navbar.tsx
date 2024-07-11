@@ -55,15 +55,9 @@ function ProfileButton() {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem>
-            <Link to="/404" className="flex items-center gap-2">
+            <Link to={`/users/${authUser.id}`} className="flex items-center gap-2">
               <div className="h-4 w-4" />
               <span>Profile</span>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Link to="/404" className="flex items-center gap-2">
-              <div className="h-4 w-4" />
-              <span>Settings</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
