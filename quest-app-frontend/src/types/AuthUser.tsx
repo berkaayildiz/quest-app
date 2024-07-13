@@ -4,5 +4,6 @@
 export type AuthUser = {
   id: number;
   username: string;
-  token: string;
+  accessToken: string;
+  refreshToken: string;
 };

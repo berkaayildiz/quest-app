@@ -26,12 +26,13 @@ const CommentForm: FC<CommentFormProps> = ({ postId, refreshComments }) =>
 
   // Save comment to database with the current user's credentials
   const saveComment = async () => {
+    console.log('postId:', postId);
     try {
       const response = await fetch('/comments', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': authUser.token,
+            'Authorization': authUser.accessToken,
           },
           body: JSON.stringify({
             userId: authUser.id,

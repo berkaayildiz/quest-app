@@ -43,7 +43,7 @@ const PostForm: FC<PostFormProps> = ({ refreshPosts }) =>
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': authUser.token,
+            'Authorization': authUser.accessToken,
           },
           body: JSON.stringify({
             userId: authUser.id,

@@ -60,7 +60,7 @@ const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': authUser.token,
+            'Authorization': authUser.accessToken,
           },
           body: JSON.stringify({
             userId: authUser.id,
@@ -78,7 +78,7 @@ const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': authUser.token,
+          'Authorization': authUser.accessToken,
         },
       });
     } catch (error) { console.error('Error:', error); }

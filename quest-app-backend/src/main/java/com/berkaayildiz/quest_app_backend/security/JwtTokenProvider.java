@@ -1,9 +1,9 @@
 package com.berkaayildiz.quest_app_backend.security;
 
+import java.time.Instant;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Jwts;
@@ -18,13 +18,13 @@ public class JwtTokenProvider
     @Value("${quest_app.expires_in}")
     private long EXPIRES_IN;
 
+
     @SuppressWarnings("deprecation")
-    public String generateJwtToken(Authentication auth) {
-        JwtUserDetails userDetails = (JwtUserDetails) auth.getPrincipal();
-        Date expireDate = new Date(new Date().getTime() + EXPIRES_IN);
+    public String generateJwtTokenByUserId(Long userId) {
+        Date expireDate = Date.from(Instant.now().plusSeconds(EXPIRES_IN));
 
         return Jwts.builder()
-                .setSubject(Long.toString(userDetails.getId()))
+                .setSubject(Long.toString(userId))
                 .setIssuedAt(new Date())
                 .setExpiration(expireDate)
                 .signWith(io.jsonwebtoken.SignatureAlgorithm.HS256, APP_SECRET)

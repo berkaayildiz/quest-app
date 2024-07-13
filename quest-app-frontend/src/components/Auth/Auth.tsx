@@ -31,7 +31,7 @@ const Auth: FC<AuthProps> = ({ mode }) =>
 
     if (isLogin) {
       // Save the logged in user credentials to local storage
-      const authUser: AuthUser = { id: response.userId, username: usernameField, token: response.message };
+      const authUser: AuthUser = { id: response.userId, username: usernameField, accessToken: response.accessToken, refreshToken: response.refreshToken };
       localStorage.setItem("authUser", JSON.stringify(authUser));
       // Redirect the user to the home page
       navigate('/');
