@@ -15,6 +15,7 @@ import CommentForm from '../Comment/CommentForm';
 import { LikeType } from '@/types/LikeType';
 import { AuthUser } from '@/types/AuthUser';
 import { deleteWithAuth, postWithAuth } from '@/services/HttpService';
+import { API_URL } from '@/constants';
 
 
 const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
@@ -31,7 +32,7 @@ const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
 
   // Fetches comments from the server by postId
   const refreshComments = (postId: number) => {
-    fetch("/comments?postId=" + postId)
+    fetch(`${API_URL}/comments?postId=` + postId)
       .then(response => response.json())
       .then(
         (result: CommentType[]) => {
@@ -46,7 +47,7 @@ const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
   // Fetches likes from the server by postId
   const refreshLikes = async (postId: number) => {
     try {
-      const response = await fetch("/likes?postId=" + postId);
+      const response = await fetch(`${API_URL}/likes?postId=` + postId);
       const result: LikeType[] = await response.json();
       likes = result;
     } catch (error) {
@@ -56,12 +57,12 @@ const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
 
   // Save like to database with the current user's credentials
   const saveLike = async () => {
-    await postWithAuth('/likes', {userId: authUser.id, postId: id});
+    await postWithAuth(`${API_URL}/likes`, {userId: authUser.id, postId: id});
   };
 
   // Delete like from database with the current user's credentials
   const deleteLike = async (likeId: number) => {
-    await deleteWithAuth('/likes/' + likeId);
+    await deleteWithAuth(`${API_URL}/likes/` + likeId);
   };
 
   // Handles the like button click event

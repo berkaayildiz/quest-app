@@ -5,6 +5,7 @@ import PostForm from "../Post/PostForm";
 
 import { PostType } from "@/types/PostType";
 import { AuthUser } from "@/types/AuthUser";
+import { API_URL } from "@/constants";
 
 
 function Home()
@@ -19,7 +20,7 @@ function Home()
 
   // Fetches posts from the server
   const refreshPosts = () => { 
-    fetch("/posts")
+    fetch(`${API_URL}/posts`)
       .then((response) => response.json())
       .then(
         (result: PostType[]) => {

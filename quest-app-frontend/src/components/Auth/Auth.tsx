@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 
 import { AuthUser } from "@/types/AuthUser"
 import { AuthProps } from "@/types/props/AuthProps"
+import { API_URL } from "@/constants"
 
 
 const Auth: FC<AuthProps> = ({ mode }) =>
@@ -50,7 +51,7 @@ const Auth: FC<AuthProps> = ({ mode }) =>
   async function sendRequest(isLoginRequest: boolean) {
     const endpoint = isLoginRequest ? "login" : "signup";
     try {
-      const response = await fetch(`/auth/${endpoint}`, {
+      const response = await fetch(`${API_URL}/auth/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: usernameField, password: passwordField }),

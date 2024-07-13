@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { CommentFormProps } from "@/types/props/CommentFormProps";
 import { AuthUser } from "@/types/AuthUser";
 import { postWithAuth } from "@/services/HttpService";
+import { API_URL } from "@/constants";
 
 
 const CommentForm: FC<CommentFormProps> = ({ postId, refreshComments }) =>
@@ -27,7 +28,7 @@ const CommentForm: FC<CommentFormProps> = ({ postId, refreshComments }) =>
 
   // Save comment to database with the current user's credentials
   const saveComment = async () => {
-    await postWithAuth('/comments', {userId: authUser.id, postId: postId, text: commentField});
+    await postWithAuth(`${API_URL}/comments`, {userId: authUser.id, postId: postId, text: commentField});
   };
 
   

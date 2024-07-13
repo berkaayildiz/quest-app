@@ -43,17 +43,18 @@ public class AuthController
 
     
 	@PostMapping("/login")
-	public AuthResponse login(@RequestBody UserRequest loginRequest) {
+	public ResponseEntity<?> login(@RequestBody UserRequest loginRequest) {
+		User user = userService.getUserByUsername(loginRequest.getUsername());
+		if (user == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist.");
 		UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
 		Authentication auth = authenticationManager.authenticate(authToken);
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		String jwtToken = jwtTokenProvider.generateJwtTokenByUserId(((JwtUserDetails) auth.getPrincipal()).getId());
-		User user = userService.getUserByUsername(loginRequest.getUsername());
 		AuthResponse authResponse = new AuthResponse();
 		authResponse.setUserId(user.getId());
 		authResponse.setAccessToken("Bearer " + jwtToken);
 		authResponse.setRefreshToken(refreshTokenService.createRefreshToken(user));
-		return authResponse;
+		return ResponseEntity.ok(authResponse);
 	}
 	
 	@PostMapping("/signup")

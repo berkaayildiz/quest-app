@@ -1,3 +1,4 @@
+import { API_URL } from "@/constants";
 import { AuthUser } from "@/types/AuthUser";
 
 /**
@@ -71,7 +72,7 @@ export const refreshToken = async () => {
 
   // Perform the POST request to refresh the access token
   try {
-    const response = await fetch('/auth/refresh', {
+    const response = await fetch(`${API_URL}/auth/refresh`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

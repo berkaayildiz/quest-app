@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useEffect, useState } from "react";
 
 import { UserType } from "@/types/UserType";
+import { API_URL } from "@/constants";
 
 
 type UserParams = { userId: string; };
@@ -19,7 +20,7 @@ function User()
   // Save like to database with the current user's credentials
   const getUser = async () => {
     try {
-      const response = await fetch(`/users/${userId}`, {
+      const response = await fetch(`${API_URL}/users/${userId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

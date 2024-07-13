@@ -12,6 +12,7 @@ import { FormFieldProps } from '@/types/props/FormFieldProps';
 import './PostForm.css';
 import { AuthUser } from '@/types/AuthUser';
 import { postWithAuth } from '@/services/HttpService';
+import { API_URL } from '@/constants';
 
 
 const PostForm: FC<PostFormProps> = ({ refreshPosts }) =>
@@ -39,7 +40,7 @@ const PostForm: FC<PostFormProps> = ({ refreshPosts }) =>
 
   // Save post to database
   const savePost = async () => {
-    await postWithAuth('/posts', {userId: authUser.id, title: title, text: description});
+    await postWithAuth(`${API_URL}/posts`, {userId: authUser.id, title: title, text: description});
   };
 
   
