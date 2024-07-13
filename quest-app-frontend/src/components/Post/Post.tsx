@@ -14,6 +14,7 @@ import { PostProps } from '@/types/props/PostProps';
 import CommentForm from '../Comment/CommentForm';
 import { LikeType } from '@/types/LikeType';
 import { AuthUser } from '@/types/AuthUser';
+import { deleteWithAuth, postWithAuth } from '@/services/HttpService';
 
 
 const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
@@ -55,33 +56,12 @@ const Post: FC<PostProps> = ({ id, userId, username, title, text, likes}) =>
 
   // Save like to database with the current user's credentials
   const saveLike = async () => {
-    try {
-      const response = await fetch('/likes', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': authUser.accessToken,
-          },
-          body: JSON.stringify({
-            userId: authUser.id,
-            postId: id,
-          }),
-      });
-      await response.json();
-    } catch (error) { console.error('Error:', error); }
+    await postWithAuth('/likes', {userId: authUser.id, postId: id});
   };
 
   // Delete like from database with the current user's credentials
   const deleteLike = async (likeId: number) => {
-    try {
-      await fetch('/likes/' + likeId, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': authUser.accessToken,
-        },
-      });
-    } catch (error) { console.error('Error:', error); }
+    await deleteWithAuth('/likes/' + likeId);
   };
 
   // Handles the like button click event

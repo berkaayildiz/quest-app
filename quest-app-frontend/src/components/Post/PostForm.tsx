@@ -11,6 +11,7 @@ import { FormFieldProps } from '@/types/props/FormFieldProps';
 
 import './PostForm.css';
 import { AuthUser } from '@/types/AuthUser';
+import { postWithAuth } from '@/services/HttpService';
 
 
 const PostForm: FC<PostFormProps> = ({ refreshPosts }) =>
@@ -38,21 +39,7 @@ const PostForm: FC<PostFormProps> = ({ refreshPosts }) =>
 
   // Save post to database
   const savePost = async () => {
-    try {
-      const response = await fetch('/posts', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': authUser.accessToken,
-          },
-          body: JSON.stringify({
-            userId: authUser.id,
-            title: title,
-            text: description,
-          }),
-      });
-      await response.json();
-    } catch (error) { console.error('Error:', error); }
+    await postWithAuth('/posts', {userId: authUser.id, title: title, text: description});
   };
 
   
