@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { toast } from '@/components/ui/use-toast';
 
 import { PostFormProps } from '@/types/props/PostFormProps';
 import { FormFieldProps } from '@/types/props/FormFieldProps';
@@ -40,7 +41,8 @@ const PostForm: FC<PostFormProps> = ({ refreshPosts }) =>
 
   // Save post to database
   const savePost = async () => {
-    await postWithAuth(`${API_URL}/posts`, {userId: authUser.id, title: title, text: description});
+    const response = await postWithAuth(`${API_URL}/posts`, {userId: authUser.id, title: title, text: description});
+    if (response) toast({ description: 'Post saved successfully!' });
   };
 
   
@@ -60,7 +62,7 @@ const PostForm: FC<PostFormProps> = ({ refreshPosts }) =>
           id="title"
           label="Title"
           placeholder="Enter title"
-          maxLength={25}
+          maxLength={75}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />

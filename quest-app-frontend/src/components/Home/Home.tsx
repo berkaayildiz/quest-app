@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 
 import Post from "../Post/Post";
 import PostForm from "../Post/PostForm";
+import { SkeletonPost } from "../Post/SkeletonPost";
 
 import { PostType } from "@/types/PostType";
 import { AuthUser } from "@/types/AuthUser";
@@ -38,8 +39,16 @@ function Home()
   useEffect(() => {refreshPosts();}, []);
 
 
-  // Displays loading message if the fetch is not complete
-  if (!isLoaded) { return <div>Loading...</div>; }
+  // Displays skeleton posts if the fetch is not complete
+  if (!isLoaded) {
+    return (
+      <div className="flex flex-col m-6 items-center justify-center">
+        <SkeletonPost />
+        <SkeletonPost />
+        <SkeletonPost />
+      </div>
+    )
+  }
   // Displays the home page if the fetch is complete
   else {
     return (

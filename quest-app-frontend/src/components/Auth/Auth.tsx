@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useToast } from "@/components/ui/use-toast"
 
 import { AuthUser } from "@/types/AuthUser"
 import { AuthProps } from "@/types/props/AuthProps"
@@ -13,6 +14,8 @@ import { API_URL } from "@/constants"
 
 const Auth: FC<AuthProps> = ({ mode }) =>
 {
+  // Holds the state of whether the fetch has completed
+  const [isLoaded, setIsLoaded] = useState<boolean>(true);
   // Holds if the user is currently logging in or signing up
   const [isLogin, setIsLogin] = useState(mode === 'login');
   // Holds the state of the username and password input fields
@@ -20,6 +23,8 @@ const Auth: FC<AuthProps> = ({ mode }) =>
   const [passwordField, setPasswordField] = useState('');
   // Get the navigate function from the router
   const navigate = useNavigate();
+  // Displays a toast message when the user logs in or signs up
+  const { toast } = useToast();
 
 
   // Update the isLogin state when the mode prop changes
@@ -27,8 +32,16 @@ const Auth: FC<AuthProps> = ({ mode }) =>
 
   // Handle the form submission
   async function handleSubmit() {
+    // Validate the username and password input fields
+    if (!usernameField || !passwordField || usernameField.length < 4 || passwordField.length < 4) {
+      toast({ description: "Please fill in all the fields and ensure they are at least 4 characters long" })
+      return;
+    }
+
     // Send the request to the server
     const response = await sendRequest(isLogin);
+    // Check if the response is null
+    if (!response) return;
 
     if (isLogin) {
       // Save the logged in user credentials to local storage
@@ -50,14 +63,23 @@ const Auth: FC<AuthProps> = ({ mode }) =>
   // Send the login or sign up request to the server
   async function sendRequest(isLoginRequest: boolean) {
     const endpoint = isLoginRequest ? "login" : "signup";
+    setIsLoaded(false);
     try {
       const response = await fetch(`${API_URL}/auth/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: usernameField, password: passwordField }),
       });
-      return await response.json();
+      if (!response.ok) {
+        const error = await response.json();
+        toast({ description: error.message }); setIsLoaded(true);
+        return null;
+      } else {
+        toast({ description: isLoginRequest ? "Logged in successfully" : "Signed up successfully" }); setIsLoaded(true);
+        return response.json();
+      }
     } catch (error) {
+      toast({ description: "Something went wrong..." }); setIsLoaded(true);
       console.error('Error:', error);
     }
   }
@@ -87,7 +109,7 @@ const Auth: FC<AuthProps> = ({ mode }) =>
             <div className="grid gap-2">
               <div className="flex items-center">
                 <Label htmlFor="password">Password</Label>
-                { isLogin && (<Link to="/" className="ml-auto inline-block text-sm underline">Forgot your password?</Link>) }
+                { isLogin && (<Link to="/404" className="ml-auto inline-block text-sm underline">Forgot your password?</Link>) }
               </div>
               <Input
                 id="password"
@@ -97,7 +119,12 @@ const Auth: FC<AuthProps> = ({ mode }) =>
                 onChange={(e) => setPasswordField(e.target.value)}
               />
             </div>
-              <Button type="submit" className="w-full" onClick={handleSubmit}>
+              <Button
+                type="submit"
+                className={`w-full ${isLoaded ? 'bg-primary' : 'bg-gray-400'}`}
+                onClick={handleSubmit}
+                disabled={!isLoaded}
+              >
                 {isLogin ? 'Login' : 'Sign up'}
               </Button>
           </div>

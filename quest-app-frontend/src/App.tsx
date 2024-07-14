@@ -1,5 +1,6 @@
 import { FC } from 'react'; // Import React
 import { HashRouter as BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from "@/components/ui/toaster"
 
 import Navbar from './components/Navbar/Navbar';
 import Home from './components/Home/Home';
@@ -27,6 +28,7 @@ const App: FC = () =>
           <Route path="/auth/signup" element={authUser.id != null ? <Navigate to="/" replace /> : <Auth  mode="signup" />} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
+        <Toaster />
       </BrowserRouter>
     </div>
   );
